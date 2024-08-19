@@ -33,21 +33,21 @@ function parseProperty(propertyStr) {
 }
 
 const parseCondition = (conditionStr) => {
-  const params = conditionStr.split(/AND|OR/).map((part) => {
-    if (part.startsWith("NOT ")) {
-      return {
-        negation: true,
-        node: part.match(/NOT \((\w+)\s*{[^}]+}\)/)[1],
-        property: parseProperty(part.match(/NOT \(\w+\s*{([^}]+)}\)/)[1]),
-      };
-    } else {
-      return {
-        negation: false,
-        node: part.match(/(\w+)\s*{[^}]+}/)[1],
-        property: parseProperty(part.match(/\w+\s*{([^}]+)}/)[1]),
-      };
-    }
-  });
+  const params = conditionStr
+    .replace(/AND/g, "\nAND")
+    .replace(/OR/g, "\nOR")
+    .split("\n")
+    .map((part) => {
+      const param = {};
+      if (part.startsWith("AND")) param.operator = "AND";
+      if (part.startsWith("OR")) param.operator = "OR";
+      part = part.replace("AND ", "").replace("OR ", "");
+      if (part.startsWith("NOT")) param.negation = true;
+      part = part.replace("NOT ", "");
+      param.node = part.match(/(\w+)\s*{[^}]+}/)[1];
+      param.property = parseProperty(part.match(/\w+\s*{([^}]+)}/)[1]);
+      return param;
+    });
   return params;
 };
 
@@ -55,18 +55,18 @@ const parseLoop = (loopStr) => {
   const loop = {};
   if (loopStr.startsWith("FOR ")) {
     const match = loopStr.match(/FOR (\w+) = (\d+) TO (\d+)/);
-    loop.type = "for";
+    loop.type = "FOR";
     loop.iterator = match[1];
     loop.start = parseInt(match[2]);
     loop.end = parseInt(match[3]);
   } else if (loopStr.startsWith("FOREACH")) {
     const match = loopStr.match(/FOREACH (\w+) IN (\w+)/);
-    loop.type = "foreach";
+    loop.type = "FOREACH";
     loop.iterator = match[1];
     loop.collection = match[2];
   }
   return loop;
-}
+};
 
 const parseBlock = (lines) => {
   const variables = {};
@@ -109,7 +109,7 @@ const parseBlock = (lines) => {
       }
       conditions.push(condition);
     } else if (line.startsWith("FOR") || line.startsWith("FOREACH")) {
-      const loop = parseLoop(line);      
+      const loop = parseLoop(line);
       let counter = 0;
       let j = i + 1;
       while (j < lines.length) {
