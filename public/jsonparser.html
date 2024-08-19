@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphLogic JSON to DSL Parser</title>
+    <style>
+        div#jsonResult {
+            background: #c9c9c9;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>GraphLogic JSON to DSL Parser</h1>
+    <form id="jsonParserForm">
+        <textarea id="jsonInput" name="jsonInput" rows="20" cols="200" placeholder='Enter JSON here...'></textarea><br>
+        <button type="submit">Generate DSL</button>
+    </form>
+    <br><a href="/">DSL Parser to JSON</a> | <a target="_blank" href="/docs">Documentation</a><br><br>
+    <p>OutPut:</p>
+    <div id="jsonResult"></div>
+
+    <script>
+        document.getElementById('jsonParserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const jsonInput = document.getElementById('jsonInput').value;
+
+            fetch('/jsonparser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ jsonInput: JSON.parse(jsonInput) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('jsonResult');
+                if (data.success) {
+                    resultDiv.innerHTML = `<pre>${data.dslOutput}</pre>`;
+                } else {
+                    resultDiv.textContent = `Error: ${data.message}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphLogic Rules Engine DSL Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background-color: #eaeaea;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        code {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #eaeaea;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>GraphLogic Rules Engine DSL Documentation</h1>
+
+    <p>This documentation provides an overview and instructions for writing code using a Domain-Specific Language (DSL) to define rules in a rules engine. The DSL supports conditional logic for defining actions based on various properties of entities such as <code>Person</code>, <code>Skill</code>, and <code>Users</code>.</p>
+
+    <h2>Overview</h2>
+
+    <p>The DSL allows the creation of complex rules with nested conditions, logical operators (AND, OR, NOT), and hierarchical relationships. The rules are written in a structured format using <code>IF</code>, <code>THEN</code>, <code>ELSE</code>, and <code>ENDIF</code> statements.</p>
+
+    <h3>Basic Structure</h3>
+
+    <p>A rule is defined using the following structure:</p>
+    <pre><code>IF (condition) THEN action ENDIF</code></pre>
+
+    <h3>Nested Conditions</h3>
+
+    <p>Rules can have nested conditions for more complex logic:</p>
+    <pre><code>IF (condition) THEN
+    IF (nested_condition) THEN nested_action ENDIF
+ELSE
+    action_else
+ENDIF</code></pre>
+
+    <h3>Logical Operators</h3>
+
+    <p>The DSL supports logical operators to combine multiple conditions:</p>
+    <ul>
+        <li>AND</li>
+        <li>OR</li>
+        <li>NOT</li>
+    </ul>
+
+    <h3>Relationships</h3>
+
+    <p>The DSL can express relationships between entities using the <code>- HAS {property} -></code> syntax.</p>
+
+    <h2>Syntax</h2>
+
+    <h3>Conditions</h3>
+
+    <p>Conditions check the properties of entities. The basic format is:</p>
+    <pre><code>(Entity {property: value})</code></pre>
+
+    <p>Examples:</p>
+    <pre><code>(Person {first_name: "John"})
+(Skill {name: "JavaScript"})</code></pre>
+
+    <h3>Actions</h3>
+
+    <p>Actions are functions or operations executed when conditions are met. Actions are defined as:</p>
+    <pre><code>action()</code></pre>
+
+    <p>Examples:</p>
+    <pre><code>doSomething()</code></pre>
+
+    <h2>Combining Conditions</h2>
+
+    <p>Conditions can be combined using logical operators:</p>
+    <ul>
+        <li><code>AND</code>: Both conditions must be true.</li>
+        <li><code>OR</code>: At least one condition must be true.</li>
+        <li><code>NOT</code>: The condition must be false.</li>
+    </ul>
+
+    <p>Examples:</p>
+    <pre><code>(Person {first_name: "John"}) AND (Person {age: 30})
+(Person {first_name: "John"}) OR (Person {age: 30})
+NOT (Person {first_name: "John"})</code></pre>
+
+    <h2>Relationships</h2>
+
+    <p>Relationships between entities can be expressed as follows:</p>
+    <pre><code>(Entity {property: value}) - HAS {property: value} -> (Entity {property: value})</code></pre>
+
+    <p>Examples:</p>
+    <pre><code>(Person {first_name: "John"}) - HAS {years: 10} -> (Skill {name: "JavaScript"})</code></pre>
+
+    <h2>Examples</h2>
+
+    <h3>Simple Condition</h3>
+    <pre><code>IF (Person {first_name: "John"}) THEN doSomething() ENDIF</code></pre>
+
+    <h3>Condition with ELSE</h3>
+    <pre><code>IF (Person {first_name: "John"}) THEN doSomething() ELSE THEN doSomethingElse() ENDIF</code></pre>
+
+    <h3>Nested Conditions</h3>
+    <pre><code>IF (Person {first_name: "John"}) THEN
+    IF (Person {age: 30}) THEN doSomething() ENDIF
+ELSE
+    doSomethingElse()
+ENDIF</code></pre>
+
+    <h3>Condition with AND</h3>
+    <pre><code>IF (Person {first_name: "John"}) AND (Person {age: 30}) THEN doSomething() ENDIF</code></pre>
+
+    <h3>Condition with OR</h3>
+    <pre><code>IF (Person {first_name: "John"}) OR (Person {age: 30}) THEN doSomething() ENDIF</code></pre>
+
+    <h3>Condition with NOT</h3>
+    <pre><code>IF NOT (Person {first_name: "John"}) THEN doSomething() ENDIF</code></pre>
+
+    <h3>Complex Logical Expression</h3>
+    <pre><code>IF (Person {first_name: "John"}) AND (Person {age: 30}) OR NOT (Skill {name: "JavaScript"}) THEN doSomething() ENDIF</code></pre>
+
+    <h3>Relationship Condition</h3>
+    <pre><code>IF (Person {first_name: "John"}) - HAS {years: 10} -> (Skill {name: "JavaScript"}) THEN learnJavascript() ENDIF</code></pre>
+
+    <h3>Complex Nested Conditions</h3>
+    <pre><code>IF (Users {email: "kamruljpi@gmail.com"}) AND (Users {age: 30}) OR NOT (Roles {name: "Admin"}) THEN
+    doSomething()
+ELSE
+    IF (Person {first_name: "John"}) AND (Person {age: 30}) OR NOT (Skill {name: "JavaScript"}) THEN doSomething() ENDIF
+ENDIF</code></pre>
+
+    <h2>Conclusion</h2>
+
+    <p>This documentation outlines the syntax and structure for writing rules using the provided DSL. The flexibility of the DSL allows for the creation of both simple and complex rules to meet various requirements in a rules engine. Use this guide as a reference for defining and implementing your rules accurately.</p>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "dsl-json",
+  "version": "1.0.0",
+  "description": "DSL-JSON",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
