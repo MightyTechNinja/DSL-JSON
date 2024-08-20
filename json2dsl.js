@@ -32,7 +32,7 @@ const parseBlock = (json, indentLevel) => {
   }
   if (json.conditions) {
     for (let condition of json.conditions) {
-      code += `${indent}IF ${parseCondition(condition.params)}\n`;
+      code += `${indent}IF ${parseCondition(condition.params)} THEN\n`;
       code += parseBlock(condition.then, indentLevel + 1);
       if (condition.else) {
         code += `${indent}ELSE\n`;
@@ -43,11 +43,11 @@ const parseBlock = (json, indentLevel) => {
   }
   if (json.loops) {
     for (let loop of json.loops) {
-      if (loop.type === "for") {
+      if (loop.type === "FOR") {
         code += `${indent}FOR ${loop.iterator} = ${loop.start} TO ${loop.end}\n`;
         code += parseBlock(loop.content, indentLevel + 1);
         code += `${indent}NEXT ${loop.iterator}\n`;
-      } else if (loop.type === "foreach") {
+      } else if (loop.type === "FOREACH") {
         code += `${indent}FOREACH ${loop.iterator} IN ${loop.collection}\n`;
         code += parseBlock(loop.content, indentLevel + 1);
         code += `${indent}NEXT ${loop.iterator}\n`;
