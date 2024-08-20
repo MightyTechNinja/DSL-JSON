@@ -1,24 +1,9 @@
 const dsl2json = (dsl) => {
-  const formattedDSL = formatDSL(dsl);
-  const lines = formattedDSL
+  const lines = dsl
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line !== "");
   return parseBlock(lines);
-};
-
-const formatDSL = (dsl) => {
-  let formattedDSL = dsl
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line !== "")
-    .join("\n");
-  formattedDSL = formattedDSL
-    .replace(/\sIF\s/g, "\nIF ")
-    .replace(/\sTHEN\s/g, " THEN\n")
-    .replace(/\sELSE\s/g, "\nELSE\n")
-    .replace(/\sENDIF\s/g, "\nENDIF\n");
-  return formattedDSL;
 };
 
 function parseProperty(propertyStr) {
@@ -80,22 +65,34 @@ const parseBlock = (lines) => {
       const [, key, value] = line.match(/VAR (\w+) = (\d+|.+\(\))/);
       variables[key] = isNaN(value) ? value : parseInt(value);
     } else if (line.startsWith("IF")) {
-      const condition = {};
-      const [, conditionStr] = line.match(/IF (.+)/);
-      condition.params = parseCondition(conditionStr);
+      const condition = [];      
+      let conditionStr = "";
+      [, conditionStr] = line.match(/IF (.+)/);  
+      let subCondition = {};
+      subCondition.type = "if";
+      subCondition.params = parseCondition(conditionStr);    
       let counter = 0;
       let j = i + 1;
       while (j < lines.length) {
-        if (counter == 0 && lines[j].startsWith("ELSE")) {
-          condition.then = parseBlock(lines.slice(i + 1, j));
+        if (counter == 0 && lines[j].startsWith("ELSE IF")) {
+          subCondition.content = parseBlock(lines.slice(i + 1, j));
+          condition.push(subCondition);
+          [, conditionStr] = lines[j].match(/ELSE IF (.+)/);
+          subCondition = {};
+          subCondition.type = "elseif"
+          subCondition.params = parseCondition(conditionStr);
           i = j;
         }
-        if (counter == 0 && lines[j].startsWith("ENDIF")) {
-          if (condition.then) {
-            condition.else = parseBlock(lines.slice(i + 1, j));
-          } else {
-            condition.then = parseBlock(lines.slice(i + 1, j));
-          }
+        else if (counter == 0 && lines[j].startsWith("ELSE")) {
+          subCondition.content = parseBlock(lines.slice(i + 1, j));
+          condition.push(subCondition);
+          subCondition = {};
+          subCondition.type = "else"
+          i = j;
+        }
+        else if (counter == 0 && lines[j].startsWith("ENDIF")) {
+          subCondition.content = parseBlock(lines.slice(i + 1, j));
+          condition.push(subCondition);
           i = j;
           break;
         }

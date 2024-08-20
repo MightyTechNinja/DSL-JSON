@@ -32,11 +32,17 @@ const parseBlock = (json, indentLevel) => {
   }
   if (json.conditions) {
     for (let condition of json.conditions) {
-      code += `${indent}IF ${parseCondition(condition.params)} THEN\n`;
-      code += parseBlock(condition.then, indentLevel + 1);
-      if (condition.else) {
-        code += `${indent}ELSE\n`;
-        code += parseBlock(condition.else, indentLevel + 1);
+      for (let subCondition of condition) {
+        if (subCondition.type === "if") {
+          code += `${indent}IF ${parseCondition(subCondition.params)} THEN\n`;
+          code += parseBlock(subCondition.content, indentLevel + 1);
+        } else if (subCondition.type === "elseif") {
+          code += `${indent}ELSE IF ${parseCondition(subCondition.params)} THEN\n`;
+          code += parseBlock(subCondition.content, indentLevel + 1);
+        } else if (subCondition.type === "else") {
+          code += `${indent}ELSE\n`;
+          code += parseBlock(subCondition.content, indentLevel + 1);
+        }
       }
       code += `${indent}ENDIF\n`;
     }
