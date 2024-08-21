@@ -19,18 +19,33 @@ function parseProperty(propertyStr) {
 
 const parseCondition = (conditionStr) => {
   const params = conditionStr
-    .replace(/AND/g, "\nAND")
-    .replace(/OR/g, "\nOR")
+    .replace(/\sAND/g, "\nAND")
+    .replace(/\sOR/g, "\nOR")
+    .replace(/\s-/g, "\n-")
     .split("\n")
+    .filter((line) => line !== "")
     .map((part) => {
       const param = {};
-      if (part.startsWith("AND")) param.operator = "AND";
-      if (part.startsWith("OR")) param.operator = "OR";
-      part = part.replace("AND ", "").replace("OR ", "");
+      if (part.startsWith("AND ")) param.operator = "AND";
+      if (part.startsWith("OR ")) param.operator = "OR";
+      if (part.startsWith("- ")) param.operator = "-";
+      if (part.startsWith("-> ")) param.operator = "->";
+      part = part
+        .replace("AND ", "")
+        .replace("OR ", "")
+        .replace("- ", "")
+        .replace("-> ", "");
       if (part.startsWith("NOT")) param.negation = true;
       part = part.replace("NOT ", "");
-      param.node = part.match(/(\w+)\s*{[^}]+}/)[1];
-      param.property = parseProperty(part.match(/\w+\s*{([^}]+)}/)[1]);
+      const match = part.match(/\((.+)\s*{([^}]+)}/);
+      if (match) {
+        const list = match[1].trim().split(" ");
+        param.node = list[0];
+        if (list.length > 1) param.type = list[1];
+        param.property = parseProperty(match[2]);
+      } else {
+        param.property = parseProperty(part.match(/{([^}]+)}/)[1]);
+      }
       return param;
     });
   return params;
@@ -40,13 +55,13 @@ const parseLoop = (loopStr) => {
   const loop = {};
   if (loopStr.startsWith("FOR ")) {
     const match = loopStr.match(/FOR (\w+) = (\d+) TO (\d+)/);
-    loop.type = "FOR";
+    loop.type = "for";
     loop.iterator = match[1];
     loop.start = parseInt(match[2]);
     loop.end = parseInt(match[3]);
   } else if (loopStr.startsWith("FOREACH")) {
     const match = loopStr.match(/FOREACH (\w+) IN (\w+)/);
-    loop.type = "FOREACH";
+    loop.type = "foreach";
     loop.iterator = match[1];
     loop.collection = match[2];
   }
@@ -65,12 +80,12 @@ const parseBlock = (lines) => {
       const [, key, value] = line.match(/VAR (\w+) = (\d+|.+\(\))/);
       variables[key] = isNaN(value) ? value : parseInt(value);
     } else if (line.startsWith("IF")) {
-      const condition = [];      
+      const condition = [];
       let conditionStr = "";
-      [, conditionStr] = line.match(/IF (.+)/);  
+      [, conditionStr] = line.match(/IF (.+)/);
       let subCondition = {};
       subCondition.type = "if";
-      subCondition.params = parseCondition(conditionStr);    
+      subCondition.params = parseCondition(conditionStr);
       let counter = 0;
       let j = i + 1;
       while (j < lines.length) {
@@ -79,18 +94,16 @@ const parseBlock = (lines) => {
           condition.push(subCondition);
           [, conditionStr] = lines[j].match(/ELSE IF (.+)/);
           subCondition = {};
-          subCondition.type = "elseif"
+          subCondition.type = "elseif";
           subCondition.params = parseCondition(conditionStr);
           i = j;
-        }
-        else if (counter == 0 && lines[j].startsWith("ELSE")) {
+        } else if (counter == 0 && lines[j].startsWith("ELSE")) {
           subCondition.content = parseBlock(lines.slice(i + 1, j));
           condition.push(subCondition);
           subCondition = {};
-          subCondition.type = "else"
+          subCondition.type = "else";
           i = j;
-        }
-        else if (counter == 0 && lines[j].startsWith("ENDIF")) {
+        } else if (counter == 0 && lines[j].startsWith("ENDIF")) {
           subCondition.content = parseBlock(lines.slice(i + 1, j));
           condition.push(subCondition);
           i = j;
