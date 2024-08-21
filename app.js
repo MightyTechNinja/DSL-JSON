@@ -5,7 +5,7 @@ const dsl2json = require('./dsl2json');
 const json2dsl = require('./json2dsl');
 
 const app = express();
-const PORT = 5000;
+const PORT = 4000;
 
 // Middleware to parse JSON and URL-encoded data
 app.use(bodyParser.json());

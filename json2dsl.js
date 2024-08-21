@@ -12,7 +12,7 @@ const parseCondition = (params) => {
       condition += "NOT ";
     }    
     const [key, value] = Object.entries(param.property)[0]; 
-    condition += `(${param.node} {${key}: "${value}"})`;
+    condition += `(${param.node}${param.type ? " " + param.type: ""} {${key}: "${value}"})`;
   }
   return condition;
 }
@@ -49,11 +49,11 @@ const parseBlock = (json, indentLevel) => {
   }
   if (json.loops) {
     for (let loop of json.loops) {
-      if (loop.type === "FOR") {
+      if (loop.type === "for") {
         code += `${indent}FOR ${loop.iterator} = ${loop.start} TO ${loop.end}\n`;
         code += parseBlock(loop.content, indentLevel + 1);
         code += `${indent}NEXT ${loop.iterator}\n`;
-      } else if (loop.type === "FOREACH") {
+      } else if (loop.type === "foreach") {
         code += `${indent}FOREACH ${loop.iterator} IN ${loop.collection}\n`;
         code += parseBlock(loop.content, indentLevel + 1);
         code += `${indent}NEXT ${loop.iterator}\n`;
