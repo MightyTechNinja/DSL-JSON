@@ -1,9 +1,17 @@
 const dsl2json = (dsl) => {
-  const lines = dsl
+  const formatedDSL = formatDSL(dsl);
+  const lines = formatedDSL
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line !== "");
   return parseBlock(lines);
+};
+
+const formatDSL = (dsl) => {
+  const formatedDSL = dsl
+    .replace(/\sTHEN\s/g, " THEN\n")
+    .replace(/\sENDIF/g, "\nENDIF\n");
+  return formatedDSL;
 };
 
 function parseProperty(propertyStr) {
@@ -41,7 +49,7 @@ const parseCondition = (conditionStr) => {
       if (match) {
         const list = match[1].trim().split(" ");
         param.node = list[0];
-        if (list.length > 1) param.type = list[1];
+        if (list.length > 1) param.relation = list[1];
         param.property = parseProperty(match[2]);
       } else {
         param.property = parseProperty(part.match(/{([^}]+)}/)[1]);

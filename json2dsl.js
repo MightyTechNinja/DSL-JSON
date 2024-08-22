@@ -13,7 +13,7 @@ const parseCondition = (params) => {
     }    
     const [key, value] = Object.entries(param.property)[0]; 
     if (param.node) {
-      condition += `(${param.node}${param.type ? " " + param.type: ""} {${key}: "${value}"})`;
+      condition += `(${param.node}${param.relation ? " " + param.relation: ""} {${key}: "${value}"})`;
     }
     else {
       condition += `{${key}: "${value}"}`;
